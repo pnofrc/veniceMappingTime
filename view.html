@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="style.css">
+
+        <script src="js/NoSleep.js"></script>
+        <script src="js/jquery.js"></script>
+        <!-- TODO: replace jquery functions -->
+        <script src="js/webpd-latest.js"></script>
+      
+      <script async>
+        $( document ).ready(function() {
+          var patch
+          $.get('./patch/ugoweb.pd', function(patchStr)
+          {
+            patch = Pd.loadPatch(patchStr)
+          })});
+      </script>
+    </head>
+    <body>
+        <h1>CLICK HERE</h1>
+        <div class="container">
+            <img id="pic" src="">
+            
+        </div>        
+        <div class="container">
+            <video id="vid" autoplay src=""></video>
+        </div>
+
+
+
+
+
+        <script defer>
+
+            
+        var users = 0
+
+        let lh = "ws://localhost:8081"
+        let ip = "ws://192.168.1.206:8081"
+
+        url = ip
+          
+        let ws = new WebSocket(url);
+
+
+
+        var pic = document.querySelector('#pic')
+        var vid = document.querySelector('#vid')
+        var timing = 800
+        let dur = 600
+
+        // function to read a json
+        function readTextFile(file, callback) {
+            var rawFile = new XMLHttpRequest();
+            rawFile.overrideMimeType("application/json");
+            rawFile.open("GET", file, true);
+            rawFile.onreadystatechange = function() {
+                if (rawFile.readyState === 4 && rawFile.status == "200") {
+                    callback(rawFile.responseText);
+                }
+            }
+            rawFile.send(null);
+        }
+
+
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * max);
+        }
+
+        function dramaturgy(keys){
+            let len = keys.length
+            let curr = getRandomInt(len)
+            
+            return keys[curr]
+        }
+
+        function timeout(min,max,users){
+            dur = Math.floor(Math.random() * (max - min) + min);
+            dur = dur - (users * 75)
+            console.log(users)
+            return dur
+        }
+
+function whole(){
+    console.log("aaaaaaaaacdgvl;dkfpvdjzfvl;kadhvk;ajhsdgij;ahfgd")
+    var keys = []
+        var dramaSequence = []
+        // Read the "database" from the json (list of paths of the pics)
+        readTextFile("./db.json", function(text){
+            var data = JSON.parse(text);
+            let k = Object.keys(data)
+            // and compile the array keys with json' keys 
+            // they are the dramaturgy choices
+            k.forEach(key => {
+                keys.push(key)
+            });
+            
+
+
+            for (let index = 0; index < 900; index++) { //TODO: invece che 48 mettere var
+                dramaSequence.push(dramaturgy(keys))
+            }
+
+            //console.log(dramaSequence)
+           
+
+
+            Pd.startOnClick(document.body, function() {
+                
+                document.querySelector('h1').style.display='none'
+
+                let n = 0;
+
+                document.querySelector('#pic').addEventListener('change', function (e) {
+                    timing = getRandomInt(2000)
+                });
+
+                function background(){
+                    if (dur <= 700 || dur >= 1600){
+                        ws.send('black')
+                        ws.close
+                    } else {
+                        ws.send('black')
+                        ws.send('white')
+                    }
+                }
+
+
+                vid.ondurationchange = function() {
+                      if (this.duration == 0){
+                        dur = 900
+                      } else if (Number.isInteger(this.duration)){
+                        dur = this.duration + '000'
+                      } else{
+                        dur = String(this.duration).replace('.','') + '0'
+                      }
+                       //ƒ console.log(this.duration)
+                        
+                      setTimeout(() => {
+                        vid.style.display = 'none'
+                    }, dur);
+
+                };
+
+                function loop() {
+
+                    ws.onmessage = function ({data}) {
+                    
+                   
+                    //if (data.isInt){
+                        if (data >= 10) {
+                            users = 10
+                        } else {
+                        users = data
+                        }
+                      //  alert(data)
+                        //console.log('adksjgvsdi;vbsdvbsdi;vbsd;vbadsiou'+data)
+                    // } else {
+                    //     console.log('  aoooooo')
+                    // }
+                }
+                  
+
+                    if (n == 900){
+                        whole()
+           
+                    }
+
+                  
+                    let nowRand = getRandomInt(data[dramaSequence[n]].length)
+                    currentPic = data[dramaSequence[n]][nowRand]
+         
+                   
+                
+                    if(dramaSequence[n] == 'clips'){
+                        vid.style.display = 'block'
+                        // TODO randomizzare via /3 e /2 e else
+                        vid.src = './assets/'+currentPic
+                        vid.autoplay
+                       
+                        background()
+                        if (n % 2){
+                            Pd.send('fastdue', [timeout(.5,1000,0)]);
+                            Pd.send('durdue', 2000)
+                             // send to mobile
+                            ws.send('fastdue')
+                        } else if (n % 3) {
+                            Pd.send('fasttre', [timeout(.5,1000,0)]);
+                            Pd.send('durtre', 2000)
+                             // send to mobile
+                            ws.send('fasttre')
+                        } else {
+                            Pd.send('fastuno', [timeout(.5,1000,0)]);
+                            Pd.send('duruno', 2000)
+                             // send to mobile
+                            ws.send('fastuno')
+                        }
+                    
+
+                
+                    } else {
+                        Pd.send(dramaSequence[n], [1]);
+                        timeout(500,2000,users)
+                         // send to mobile
+                        ws.send([dramaSequence[n]])
+                        
+                        pic.src='./assets/'+currentPic
+
+                        setTimeout(() => {
+                            background()
+                        }, 25);
+                    }
+
+                    if (n % 17 == 0 && dramaSequence[n] != 'clips'){
+                        Pd.send('startvelox', [1]);
+                         // send to mobile
+                        ws.send([dramaSequence[n]])
+
+                        let x = 0
+                        let tempFold = dramaSequence[n]
+
+                        function fastLoop(){
+                            setTimeout(() => {
+                                x++
+                                temp = nowRand+x
+                                currentPic = data[tempFold][temp]
+                                if (typeof currentPic == 'undefined'){
+                                    console.log('ÉHEHEHEH')
+                                    pic.src='./assets/'+ data[dramaSequence[n]][1]
+                                } else {
+                                    //console.log(currentPic)
+                                    pic.src='./assets/'+currentPic
+                                    if (x <= 5){
+                                        fastLoop()
+                                    } else {
+                                        Pd.send('stopvelox',[1]);
+                                        // send to mobile
+                                        ws.send([dramaSequence[n]])
+                                        console.log('')
+                                    }
+                                    //console.log('fast')
+                                }
+                            }, 400 - (users * 40));
+                        }
+                            fastLoop()
+                           // console.log('stop')
+                        window.setTimeout(loop, 5100);
+                        n++
+
+                    } else {
+                        n++
+                        window.setTimeout(loop, (timeout(300,1500,users)));
+                        
+
+                    }
+                    }
+
+                loop()
+
+
+
+                });
+                                
+            })
+}
+
+whole()
+        </script>
+
+        <script>
+
+        ws.addEventListener("open", ()=> {
+          console.log('connesso :)')
+        })
+
+        </script>
+    </body>
+
+  
+</html>

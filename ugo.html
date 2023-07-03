@@ -1,0 +1,92 @@
+ <!DOCTYPE html>
+<html>
+<head>
+
+
+
+</head>
+
+<body>
+
+    <button id="startButton">Start!</button>
+    <br>
+    <button id="button1" style="background-color: blue; padding: 20px 80px; font-size: 28px;">.   1    .</button>
+    <br>
+    <button id="button2" style="background-color: gold; padding: 20px 80px; font-size: 28px;">.   2    .</button>
+    <br>
+    <button id="button3" style="background-color: red; padding: 20px 80px; font-size: 28px;">.   3    .</button>
+    <br>
+    <button id="button4" style="background-color: lime; padding: 20px 80px; font-size: 28px;">.   4    .</button>
+    <br>
+    <button id="button5" style="background-color: violet; padding: 20px 80px; font-size: 28px;">.   5    .</button>
+    <br>
+    <button id="button6" style="background-color: Purple; padding: 20px 80px; font-size: 28px;">.   6    .</button>
+    <br>
+    <button id="button7" style="background-color: Orange; padding: 20px 80px; font-size: 28px;">.   7    .</button>
+    <br>
+
+     <form>
+        <input type="text" id="fast1" />
+        <input type="submit" value="Set pitch/redingspeed" />
+     </form>
+     
+     
+    <br>
+    <button id="button8" style="background-color: lightpink; padding: 20px 80px; font-size: 28px;">.   stuttering1    .</button>
+    <br>
+    <button id="button9" style="background-color: lightblue; padding: 20px 80px; font-size: 28px;">.   stuttering2    .</button>
+    
+
+    <script>
+
+
+      var noSleep = new NoSleep();
+      Pd.startOnClick(document.body, function() {
+
+        console.log('clicked!');
+        noSleep.enable();
+
+                      button1.onclick = () => {
+                         Pd.send("uno", [1]);
+                      };
+                       button2.onclick = () => {
+                         Pd.send("due", [1]);
+                      };
+                       button3.onclick = () => {
+                         Pd.send("tre", [1]);
+                      };
+                       button4.onclick = () => {
+                         Pd.send("quattro", [1]);
+                      };
+                       button5.onclick = () => {
+                         Pd.send("cinque", [1]);
+                      };
+                       button6.onclick = () => {
+                         Pd.send("sei", [1]);
+                      };
+                       button7.onclick = () => {
+                         Pd.send("sette", [1]);
+                      };
+
+                      $('form').submit(function(event) {
+                      event.preventDefault()
+                      Pd.send('fastuno', [parseFloat($('#fast1').val())])
+                      })
+
+                      button8.onclick = () => {
+                         Pd.send("fastdue", [6]);
+                      };
+
+                      button9.onclick = () => {
+                         Pd.send("fasttre", [4]);
+                      };
+      
+                      
+      })
+
+       
+      </script>
+
+
+</body>
+</html> 

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="style.css">
+
+        <script src="../js/NoSleep.js"></script>
+        <script src="../js/jquery.js"></script>
+        <script src="../js/webpd-latest.js"></script>
+
+        <style>
+          body,html{
+            width: 100vw;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+          }
+
+         
+        </style>
+      
+      <script async>
+        $( document ).ready(function() {
+          var patch
+          $.get('./patch/ugosmartv.pd', function(patchStr)
+          {
+            patch = Pd.loadPatch(patchStr)
+          })});
+      </script>
+
+      <style>
+        body,html {
+          width: 100vw;
+          height: 100vh;
+          margin: 0;
+          padding: 0;
+      }
+
+      body{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+      }
+
+      h1{
+        color: black;
+      }
+      </style>
+    </head>
+    <body>
+
+      <h1>CLICK HERE</h1>
+
+        <script defer>
+
+          var noSleep = new NoSleep();
+
+
+      function timeout(min,max){
+            dur = Math.floor(Math.random() * (max - min) + min);
+            return dur
+        }
+
+        document.addEventListener("click", function enableNoSleep(){
+          document.removeEventListener('click', enableNoSleep, false)
+          noSleep.enable()
+        })
+
+
+      Pd.startOnClick(document.body, function(e) {
+        document.querySelector('h1').style.display='none'
+  
+          let lh = "ws://localhost:8081"
+        let ip = "ws://192.168.1.206:8081"
+
+          url = ip
+          
+            let ws = new WebSocket(url);
+        ws.onmessage = function ({data}) {
+          console.log(data)
+
+          if (data.isInt){
+            console.log('qua xe inutile')
+          } else if (data == 'white' || data == 'black'){
+            
+            setTimeout(() => {
+              setTimeout(() => {
+                if(data == 'white'){
+                  document.body.style.backgroundColor = 'black'
+                } else {
+                  document.body.style.backgroundColor = 'white'
+                }
+              }, 15);
+              document.body.style.backgroundColor = data;
+            }, 50);
+
+          } else {
+           
+            if (data.startsWith('fast')){
+
+              Pd.send(data, [timeout(.5,1000)]);
+              Pd.send('dur'+data.substr(data.length - 3), 2000)
+            
+            } else if(data.endsWith('velox')){
+
+              Pd.send(data, [1])
+    
+            }else {
+                Pd.send(data, [1]);
+            }
+                   
+          }
+        }
+    })
+   
+
+        
+        </script>
+
+
+        <script src="../app.js" defer></script>
+    </body>
+
+  
+</html>
