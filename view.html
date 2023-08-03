@@ -11,6 +11,20 @@
         <script src="js/jquery.js"></script>
         <!-- TODO: replace jquery functions -->
         <script src="js/webpd-latest.js"></script>
+
+        <style>
+            h1{
+                color: white;
+            }
+            
+            #trigger{
+                width: 100%;
+                height: 100vh;
+                z-index: 999;
+                position: absolute;
+            }
+
+        </style>
       
       <script async>
         $( document ).ready(function() {
@@ -21,8 +35,9 @@
           })});
       </script>
     </head>
-    <body>
-        <h1>CLICK HERE</h1>
+    <body id="start">
+        <h1>CLICK HERE!!!</h1>
+        <div id="trigger"></div>
         <div class="container">
             <img id="pic" src="">
             
@@ -37,17 +52,19 @@
 
         <script defer>
 
-            
-        var users = 0
-
         let lh = "ws://localhost:8081"
         let ip = "ws://192.168.1.206:8081"
 
         url = ip
+   let ws = new WebSocket(url);
+
+        var us = 0
+
+        var qty = 5
           
-        let ws = new WebSocket(url);
+     
 
-
+        Pd.startOnClick(document.body, function() {
 
         var pic = document.querySelector('#pic')
         var vid = document.querySelector('#vid')
@@ -81,14 +98,14 @@
 
         function timeout(min,max,users){
             dur = Math.floor(Math.random() * (max - min) + min);
-            dur = dur - (users * 75)
+            dur = dur - (users * 15)
             console.log(users)
             return dur
         }
 
-function whole(){
-    console.log("aaaaaaaaacdgvl;dkfpvdjzfvl;kadhvk;ajhsdgij;ahfgd")
-    var keys = []
+
+        console.log("staaaaaaarted")
+        var keys = []
         var dramaSequence = []
         // Read the "database" from the json (list of paths of the pics)
         readTextFile("./db.json", function(text){
@@ -102,15 +119,15 @@ function whole(){
             
 
 
-            for (let index = 0; index < 900; index++) { //TODO: invece che 48 mettere var
+            for (let index = 0; index < 3000; index++) { //TODO: invece che 48 mettere var
                 dramaSequence.push(dramaturgy(keys))
             }
 
-            //console.log(dramaSequence)
+            console.log(dramaSequence)
            
 
 
-            Pd.startOnClick(document.body, function() {
+           
                 
                 document.querySelector('h1').style.display='none'
 
@@ -147,55 +164,60 @@ function whole(){
 
                 };
 
+                var  nowRand
+
                 function loop() {
 
-                    ws.onmessage = function ({data}) {
+                    ws.onmessage = function (datas) {
                     
                    
                     //if (data.isInt){
-                        if (data >= 10) {
-                            users = 10
+                        if (datas.data >= 10) {
+                            us = 10
                         } else {
-                        users = data
+                        us = datas.data
                         }
-                      //  alert(data)
-                        //console.log('adksjgvsdi;vbsdvbsdi;vbsd;vbadsiou'+data)
-                    // } else {
-                    //     console.log('  aoooooo')
-                    // }
+
+                        console.log(datas.data)
+                     
                 }
-                  
+                 
 
-                    if (n == 900){
-                        whole()
-           
+                    
+
+                    if (typeof data[dramaSequence[n]] == 'undefined'){
+                        currentPic = './assets/bestiary/_DSC1918.jpg'
+                    } else {
+                        nowRand = getRandomInt(data[dramaSequence[n]].length)
+                        //console.log(data[dramaSequence[n]])
+                        currentPic = data[dramaSequence[n]][nowRand]
                     }
-
-                  
-                    let nowRand = getRandomInt(data[dramaSequence[n]].length)
-                    currentPic = data[dramaSequence[n]][nowRand]
-         
                    
                 
                     if(dramaSequence[n] == 'clips'){
+                        if (typeof currentPic == 'undefined'){
+                            console.log('ÉHEHEHEH')
+                            vid.src='./assets/'+ data[dramaSequence[n]][1]
+                        } else {
                         vid.style.display = 'block'
                         // TODO randomizzare via /3 e /2 e else
                         vid.src = './assets/'+currentPic
                         vid.autoplay
+                        }
                        
                         background()
                         if (n % 2){
-                            Pd.send('fastdue', [timeout(.5,1000,0)]);
+                            Pd.send('fastdue', [timeout(.5,10,0)]);
                             Pd.send('durdue', 2000)
                              // send to mobile
                             ws.send('fastdue')
                         } else if (n % 3) {
-                            Pd.send('fasttre', [timeout(.5,1000,0)]);
+                            Pd.send('fasttre', [timeout(.5,20,0)]);
                             Pd.send('durtre', 2000)
                              // send to mobile
                             ws.send('fasttre')
                         } else {
-                            Pd.send('fastuno', [timeout(.5,1000,0)]);
+                            Pd.send('fastuno', [timeout(.5,15,0)]);
                             Pd.send('duruno', 2000)
                              // send to mobile
                             ws.send('fastuno')
@@ -205,12 +227,15 @@ function whole(){
                 
                     } else {
                         Pd.send(dramaSequence[n], [1]);
-                        timeout(500,2000,users)
+                        timeout(500,3000,us)
                          // send to mobile
                         ws.send([dramaSequence[n]])
-                        
-                        pic.src='./assets/'+currentPic
-
+                        if (typeof currentPic == 'undefined'){
+                            console.log('ÉHEHEHEH')
+                            pic.src='./assets/'+ data[dramaSequence[n]][1]
+                        } else {
+                            pic.src='./assets/'+currentPic
+                        }
                         setTimeout(() => {
                             background()
                         }, 25);
@@ -223,7 +248,7 @@ function whole(){
 
                         let x = 0
                         let tempFold = dramaSequence[n]
-
+                        let temp = 0
                         function fastLoop(){
                             setTimeout(() => {
                                 x++
@@ -245,7 +270,7 @@ function whole(){
                                     }
                                     //console.log('fast')
                                 }
-                            }, 400 - (users * 40));
+                            }, 500 - (us * 20));
                         }
                             fastLoop()
                            // console.log('stop')
@@ -254,22 +279,26 @@ function whole(){
 
                     } else {
                         n++
-                        window.setTimeout(loop, (timeout(300,1500,users)));
+                        window.setTimeout(loop, (timeout(300,1500,us)));
                         
 
                     }
                     }
-
                 loop()
+           
 
 
 
                 });
                                 
-            })
-}
+      
+        
 
-whole()
+       
+
+    })
+
+
         </script>
 
         <script>
